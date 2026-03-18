@@ -4,13 +4,16 @@ import { ZoomControls } from './ZoomControls'
 import { useDocumentStore } from '../../store/document.store'
 import { useUiStore } from '../../store/ui.store'
 import { useHistoryStore } from '../../store/history.store'
+import { useFormStore } from '../../store/form.store'
 import { loadPdfDocument } from '../../services/pdf-renderer.service'
 import { readFileAsBytes, downloadBytes, isPdf } from '../../lib/file-utils'
+import { writeFormValues } from '../../services/form-fill.service'
 
 export function Toolbar() {
   const { fileName, bytes, isModified, setDocument } = useDocumentStore()
   const { canUndo, canRedo, undo, redo } = useHistoryStore()
-  const { toggleSidebar } = useUiStore()
+  const { toggleSidebar, openModal } = useUiStore()
+  const { values: formValues, isDirty: formDirty } = useFormStore()
 
   const openFile = useCallback(async (file: File) => {
     if (!isPdf(file)) return
@@ -30,9 +33,15 @@ export function Toolbar() {
 
   const handleSave = useCallback(async () => {
     if (!bytes) return
-    const fileName_ = fileName ?? 'document.pdf'
-    downloadBytes(bytes, fileName_)
-  }, [bytes, fileName])
+    let finalBytes = bytes
+
+    // Bake in any form values before saving
+    if (formDirty) {
+      finalBytes = await writeFormValues(bytes, formValues)
+    }
+
+    downloadBytes(finalBytes, fileName ?? 'document.pdf')
+  }, [bytes, fileName, formValues, formDirty])
 
   const handleUndo = useCallback(() => {
     const prev = undo()
@@ -50,6 +59,8 @@ export function Toolbar() {
     })
   }, [redo, fileName])
 
+  const dirty = isModified || formDirty
+
   return (
     <div
       {...getRootProps()}
@@ -57,7 +68,7 @@ export function Toolbar() {
     >
       <input {...getInputProps()} />
 
-      {/* Logo / App name */}
+      {/* Logo */}
       <div className="flex items-center gap-2 mr-2">
         <div className="w-7 h-7 bg-red-600 rounded flex items-center justify-center">
           <span className="text-white text-xs font-bold">PDF</span>
@@ -86,10 +97,10 @@ export function Toolbar() {
       <button
         onClick={handleSave}
         disabled={!bytes}
-        className="px-3 py-1.5 text-xs font-medium rounded hover:bg-gray-100 text-gray-700 disabled:opacity-40"
+        className="px-3 py-1.5 text-xs font-medium rounded hover:bg-gray-100 text-gray-700 disabled:opacity-40 flex items-center gap-1"
       >
         Save
-        {isModified && <span className="ml-1 text-red-500">•</span>}
+        {dirty && <span className="text-red-500 text-[10px]">●</span>}
       </button>
 
       <div className="w-px h-6 bg-gray-200" />
@@ -117,9 +128,28 @@ export function Toolbar() {
       {/* Zoom */}
       <ZoomControls />
 
+      {/* Sign button shortcut */}
+      {bytes && (
+        <>
+          <div className="w-px h-6 bg-gray-200 ml-auto" />
+          <button
+            onClick={() => openModal('signature')}
+            className="px-3 py-1.5 text-xs font-medium rounded border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center gap-1.5"
+            title="Add signature"
+          >
+            🖋 Sign
+          </button>
+        </>
+      )}
+
       {/* File name */}
-      {fileName && (
+      {fileName && !bytes && (
         <span className="ml-auto text-xs text-gray-400 truncate max-w-48">
+          {fileName}
+        </span>
+      )}
+      {fileName && bytes && (
+        <span className="text-xs text-gray-400 truncate max-w-32">
           {fileName}
         </span>
       )}

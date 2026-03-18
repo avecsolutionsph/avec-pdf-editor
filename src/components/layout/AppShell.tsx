@@ -7,12 +7,15 @@ import { DropZone } from './DropZone'
 import { useDocumentStore } from '../../store/document.store'
 import { useUiStore } from '../../store/ui.store'
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts'
+import { useFormFields } from '../../hooks/useFormFields'
+import { SignatureModal } from '../signature/SignatureModal'
 
 export function AppShell() {
   const { bytes } = useDocumentStore()
-  const { propertiesPanelOpen } = useUiStore()
+  const { propertiesPanelOpen, activeModal } = useUiStore()
 
   useKeyboardShortcuts()
+  useFormFields()
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -25,6 +28,8 @@ export function AppShell() {
         </main>
         {bytes && propertiesPanelOpen && <PropertiesPanel />}
       </div>
+
+      {activeModal === 'signature' && <SignatureModal />}
     </div>
   )
 }

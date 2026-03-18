@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PdfCanvas } from './PdfCanvas'
 import { AnnotationOverlay } from '../annotations/AnnotationOverlay'
+import { FormFieldOverlay } from '../forms/FormFieldOverlay'
 import { useHighlight } from '../../hooks/useHighlight'
 import { useToolStore } from '../../store/tool.store'
 
@@ -56,10 +57,12 @@ export function PdfPage({ pageIndex, scale, pageWidth, pageHeight, isVisible }: 
         style={{
           userSelect: activeTool === 'highlight' ? 'text' : 'none',
           cursor: activeTool === 'highlight' ? 'text' : undefined,
-          // Allow mouse events through to Konva except when highlighting
           pointerEvents: activeTool === 'highlight' ? 'auto' : 'none',
         }}
       />
+
+      {/* Form field HTML overlay — always present, interactive in form-fill/sign mode */}
+      {rendered && <FormFieldOverlay pageIndex={pageIndex} />}
 
       {/* Konva annotation overlay */}
       {rendered && (

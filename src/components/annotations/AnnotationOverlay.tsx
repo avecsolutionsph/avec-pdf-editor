@@ -9,6 +9,7 @@ import { HighlightAnnotationShape } from './HighlightAnnotationShape'
 import { StickyNoteShape } from './StickyNoteShape'
 import { TextBoxShape } from './TextBoxShape'
 import { SelectionTransformer } from './SelectionTransformer'
+import { SignatureLayer, useSignatureClickHandler } from '../signature/SignaturePlacement'
 import type { Annotation, FreehandAnnotation, ShapeAnnotation, StickyNoteAnnotation, TextBoxAnnotation } from '../../types/annotation.types'
 import { nanoid } from './nanoid'
 
@@ -21,6 +22,7 @@ interface Props {
 export function AnnotationOverlay({ pageIndex, width, height }: Props) {
   const stageRef = useRef<Konva.Stage>(null)
   const { activeTool, options } = useToolStore()
+  const handleSignatureClick = useSignatureClickHandler(pageIndex, stageRef)
   const { addAnnotation, selectAnnotation, selectedId, getAnnotationsForPage } = useAnnotationStore()
 
   // In-progress state
@@ -128,6 +130,10 @@ export function AnnotationOverlay({ pageIndex, width, height }: Props) {
   }, [activeTool, inProgressPoints, inProgressShape, options, pageIndex, addAnnotation])
 
   const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (activeTool === 'sign') {
+      handleSignatureClick(e)
+      return
+    }
     if (activeTool === 'sticky-note') {
       const pos = getRelativePos(e)
       const annotation: StickyNoteAnnotation = {
@@ -154,6 +160,7 @@ export function AnnotationOverlay({ pageIndex, width, height }: Props) {
   const cursor =
     activeTool === 'draw' || activeTool === 'highlight' ? 'crosshair'
     : activeTool === 'sticky-note' ? 'cell'
+    : activeTool === 'sign' ? 'copy'
     : activeTool === 'hand' ? 'grab'
     : activeTool === 'select' ? 'default'
     : 'crosshair'
@@ -174,6 +181,9 @@ export function AnnotationOverlay({ pageIndex, width, height }: Props) {
         {pageAnnotations.map((a) => renderAnnotation(a, selectedId, activeTool === 'select'))}
         <SelectionTransformer selectedId={selectedId} />
       </Layer>
+
+      {/* Signature placement layer */}
+      <SignatureLayer pageIndex={pageIndex} stageRef={stageRef} />
 
       {/* In-progress drawing layer */}
       <Layer listening={false}>
