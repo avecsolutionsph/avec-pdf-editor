@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm create:*)",
+      "Bash(cp -r \"/Users/ricryandeleon/Avec Claude/Avec Code/pdf-editor-app/.\" \"/Users/ricryandeleon/Avec Claude/Avec Code/PDF Editor/\")",
+      "Bash(rm -rf \"/Users/ricryandeleon/Avec Claude/Avec Code/pdf-editor-app\")",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
