@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Toolbar } from '../toolbar/Toolbar'
 import { Sidebar } from './Sidebar'
 import { ToolPanel } from './ToolPanel'
@@ -9,22 +10,27 @@ import { useUiStore } from '../../store/ui.store'
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts'
 import { useFormFields } from '../../hooks/useFormFields'
 import { SignatureModal } from '../signature/SignatureModal'
+import type { DetectedFont } from '../../services/font-detection.service'
 
 export function AppShell() {
   const { bytes } = useDocumentStore()
   const { propertiesPanelOpen, activeModal } = useUiStore()
+  const [activeFont, setActiveFont] = useState<DetectedFont | null>(null)
 
   useKeyboardShortcuts()
   useFormFields()
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <Toolbar />
+      <Toolbar activeFont={activeFont} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <ToolPanel />
         <main className="flex flex-1 overflow-hidden">
-          {bytes ? <PdfViewer /> : <DropZone />}
+          {bytes
+            ? <PdfViewer onActiveFont={setActiveFont} />
+            : <DropZone />
+          }
         </main>
         {bytes && propertiesPanelOpen && <PropertiesPanel />}
       </div>

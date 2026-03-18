@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { ZoomControls } from './ZoomControls'
+import { FontMatchIndicator } from '../text-edit/FontMatchIndicator'
 import { useDocumentStore } from '../../store/document.store'
 import { useUiStore } from '../../store/ui.store'
 import { useHistoryStore } from '../../store/history.store'
@@ -8,8 +9,13 @@ import { useFormStore } from '../../store/form.store'
 import { loadPdfDocument } from '../../services/pdf-renderer.service'
 import { readFileAsBytes, downloadBytes, isPdf } from '../../lib/file-utils'
 import { writeFormValues } from '../../services/form-fill.service'
+import type { DetectedFont } from '../../services/font-detection.service'
 
-export function Toolbar() {
+interface Props {
+  activeFont?: DetectedFont | null
+}
+
+export function Toolbar({ activeFont }: Props) {
   const { fileName, bytes, isModified, setDocument } = useDocumentStore()
   const { canUndo, canRedo, undo, redo } = useHistoryStore()
   const { toggleSidebar, openModal } = useUiStore()
@@ -127,6 +133,9 @@ export function Toolbar() {
 
       {/* Zoom */}
       <ZoomControls />
+
+      {/* Font match indicator — visible only while editing text */}
+      {activeFont && <FontMatchIndicator font={activeFont} />}
 
       {/* Sign button shortcut */}
       {bytes && (

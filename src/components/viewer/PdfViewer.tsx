@@ -3,11 +3,16 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { PdfPage } from './PdfPage'
 import { useDocumentStore } from '../../store/document.store'
 import { useUiStore } from '../../store/ui.store'
+import type { DetectedFont } from '../../services/font-detection.service'
 
 const PAGE_GAP = 16 // px between pages
 const PAGE_PADDING = 32 // px horizontal padding
 
-export function PdfViewer() {
+interface Props {
+  onActiveFont?: (font: DetectedFont | null) => void
+}
+
+export function PdfViewer({ onActiveFont }: Props) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { pages } = useDocumentStore()
   const { zoom, setZoom } = useUiStore()
@@ -91,6 +96,7 @@ export function PdfViewer() {
                 pageWidth={page.width}
                 pageHeight={page.height}
                 isVisible
+                onActiveFont={onActiveFont}
               />
             </div>
           )
