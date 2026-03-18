@@ -1,4 +1,5 @@
 import { useToolStore } from '../../store/tool.store'
+import { useUiStore } from '../../store/ui.store'
 import type { ToolMode } from '../../types/tool.types'
 
 interface ToolButtonProps {
@@ -25,36 +26,48 @@ function ToolButton({ label, emoji, active, onClick }: ToolButtonProps) {
   )
 }
 
+const ANNOTATION_TOOLS: ToolMode[] = ['highlight', 'sticky-note', 'draw', 'shape', 'text-box']
+
 export function ToolPanel() {
   const { activeTool, setTool } = useToolStore()
+  const { propertiesPanelOpen, togglePropertiesPanel } = useUiStore()
+
+  const handleSetTool = (mode: ToolMode) => {
+    setTool(mode)
+    // Auto-open properties panel for annotation tools
+    if (ANNOTATION_TOOLS.includes(mode) && !propertiesPanelOpen) {
+      togglePropertiesPanel()
+    }
+    // Close properties panel for navigation tools
+    if ((mode === 'select' || mode === 'hand') && propertiesPanelOpen) {
+      togglePropertiesPanel()
+    }
+  }
 
   const tools: Array<{ mode: ToolMode; label: string; emoji: string }> = [
-    { mode: 'select', label: 'Select', emoji: '↖' },
-    { mode: 'hand', label: 'Pan', emoji: '✋' },
-    { mode: 'text-edit', label: 'Edit Text', emoji: 'T' },
-    { mode: 'highlight', label: 'Highlight', emoji: '🖊' },
-    { mode: 'sticky-note', label: 'Sticky Note', emoji: '📝' },
-    { mode: 'draw', label: 'Draw', emoji: '✏️' },
-    { mode: 'shape', label: 'Shape', emoji: '⬜' },
-    { mode: 'text-box', label: 'Text Box', emoji: '⌨' },
-    { mode: 'form-fill', label: 'Fill Form', emoji: '📋' },
-    { mode: 'sign', label: 'Sign', emoji: '🖋' },
+    { mode: 'select', label: 'Select (V)', emoji: '↖' },
+    { mode: 'hand', label: 'Pan (H)', emoji: '✋' },
+    { mode: 'text-edit', label: 'Edit Text (T)', emoji: 'Tₐ' },
+    { mode: 'highlight', label: 'Highlight (U)', emoji: '🖊' },
+    { mode: 'sticky-note', label: 'Sticky Note (N)', emoji: '📝' },
+    { mode: 'draw', label: 'Draw (P)', emoji: '✏️' },
+    { mode: 'shape', label: 'Shape (S)', emoji: '⬜' },
+    { mode: 'text-box', label: 'Text Box (X)', emoji: '⌨' },
+    { mode: 'form-fill', label: 'Fill Form (F)', emoji: '📋' },
+    { mode: 'sign', label: 'Sign (G)', emoji: '🖋' },
   ]
 
   return (
     <div className="flex flex-col gap-1 p-1.5 border-r border-gray-200 bg-white shrink-0">
       {tools.map((tool, i) => (
         <div key={tool.mode}>
-          {/* Dividers between groups */}
-          {(i === 2 || i === 8) && (
-            <div className="w-full h-px bg-gray-200 my-1" />
-          )}
+          {(i === 2 || i === 8) && <div className="w-full h-px bg-gray-200 my-1" />}
           <ToolButton
             mode={tool.mode}
             label={tool.label}
             emoji={tool.emoji}
             active={activeTool === tool.mode}
-            onClick={() => setTool(tool.mode)}
+            onClick={() => handleSetTool(tool.mode)}
           />
         </div>
       ))}
