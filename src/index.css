@@ -44,6 +44,60 @@ body,
   pointer-events: none;
 }
 
+/* Properties panel slider — uses CSS custom properties set per-instance */
+.properties-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--slider-accent, #ef4444) 0%,
+    var(--slider-accent, #ef4444) var(--slider-pct, 50%),
+    #e5e7eb var(--slider-pct, 50%),
+    #e5e7eb 100%
+  );
+  outline: none;
+  display: block;
+}
+
+.properties-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid var(--slider-accent, #ef4444);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
+}
+
+.properties-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid var(--slider-accent, #ef4444);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
+}
+
+.properties-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--slider-accent, #ef4444) 20%, transparent);
+  transform: scale(1.12);
+}
+
+.properties-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--slider-accent, #ef4444) 28%, transparent);
+}
+
+.properties-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--slider-accent, #ef4444) 28%, transparent);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
